@@ -29,7 +29,7 @@ def mask_layer(layer_index, context):
 
 def render(context, index):
     bpy.data.scenes['Scene'].render.filepath = get_output_path(context, index)
-    bpy.ops.render.render( write_still = True ) 
+    bpy.ops.render.render( write_still = True )
     return
 
 def rotate_for_vertical_joint(x, y, modifier = 1):
@@ -55,7 +55,7 @@ def position_cookie_cutter(context, x, y, left, right, enable):
     cookie_cutter.location[1] = -(x * math.cos(angle) - y * math.sin(angle)) * 4
     cookie_cutter.location[0] = -(x * math.sin(angle) + y * math.cos(angle)) * 4
     cookie_cutter.location[2] = 0
-    
+
     cookie_cutter_l = bpy.data.objects['CookieCutterLeft']
     if cookie_cutter_l is None:
         return False
@@ -71,26 +71,26 @@ def rotate_rig(context, angle, verAngle=0, bankedAngle=0, midAngle=0):
         if object is None:
             return False
         object.rotation_euler = (math.radians(bankedAngle),math.radians(verAngle),math.radians(midAngle))
-        vJoint = object.children[0] 
+        vJoint = object.children[0]
         vJoint.rotation_euler = (0,0,math.radians(angle))
         return True
 
 def post_render(context, index, crop = True):
-    magick_path = "magick"
+    magick_path = "convert"
     output_path = get_output_path(context, index)
 
     palette_path = context.scene.rct_graphics_helper_general_properties.palette_path
 
     result = ""
     if crop:
-        result = str(subprocess.check_output(magick_path + " \"" + output_path + "\" -fuzz 0 -fill none -opaque rgb(57,59,57)  -quantize RGB -dither FloydSteinberg -define dither:diffusion-amount=30% -remap \"" + palette_path + "\" -colorspace sRGB -bordercolor none -border 1 -trim -format  \"%[fx:page.x - page.width/2] %[fx:page.y - page.height/2]\" -write info: \"" + output_path + "\"", shell=True))
-        
+        result = str(subprocess.check_output(magick_path + " \"" + output_path + "\" -fuzz 0 -fill none -opaque 'rgb(57,59,57)'  -quantize RGB -dither FloydSteinberg -define dither:diffusion-amount=30% -remap \"" + palette_path + "\" -colorspace sRGB -bordercolor none -border 1 -trim -format  \"%[fx:page.x - page.width/2] %[fx:page.y - page.height/2]\" -write info: \"" + output_path + "\"", shell=True))
+
         offset_file = open(get_offset_output_path(context, index), "w")
         offset_file.write(result[2:][:-1])
         offset_file.close()
-    
+
     else:
-        result = str(subprocess.check_output(magick_path + " \"" + output_path + "\" -fuzz 0 -fill none -opaque rgb(57,59,57)  -quantize RGB -dither FloydSteinberg -define dither:diffusion-amount=30% -remap \"" + palette_path + "\" -colorspace sRGB \"" + output_path + "\"", shell=True))
+        result = str(subprocess.check_output(magick_path + " \"" + output_path + "\" -fuzz 0 -fill none -opaque 'rgb(57,59,57)'  -quantize RGB -dither FloydSteinberg -define dither:diffusion-amount=30% -remap \"" + palette_path + "\" -colorspace sRGB \"" + output_path + "\"", shell=True))
         return
 
 def mask(context, base, mask, output, operation = "In"):
@@ -214,7 +214,7 @@ class AngleSectionTask(object):
                             mask(self.context, "c_" + str(index), "full" + "_" + str(self.out_index), index, "Dst_In")
                             os.remove(get_output_path(self.context, "c_" + str(index)))
                             post_render(self.context, index)
-                            
+
                     self.out_index += 1
                 else:
                     self.wy += 1
